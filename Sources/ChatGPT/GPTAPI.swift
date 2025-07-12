@@ -12,16 +12,31 @@ private let baseURL = "https://api.openai.com/v1/"
 
 @MainActor
 public class GPTAPI {
+    
     var apiKey = ""
     var model = ""
     var developer = ""
-    
-
-    // MARK: Images
     var size: ImageSize = .auto
     var quality: ImageQuality = .auto
     var background: ImageBackground = .auto
     var number: Int = 1
+    
+    public init(apiKey: String = "",
+                model: String = "",
+                developer: String = "",
+                size: ImageSize = .auto,
+                quality: ImageQuality = .auto,
+                background: ImageBackground = .auto,
+                number: Int = 1) {
+        self.apiKey = apiKey
+        self.model = model
+        self.developer = developer
+        self.size = size
+        self.quality = quality
+        self.background = background
+        self.number = number
+    }
+
 
     func urlRequest(path: String, httpMethod: String = "POST") -> URLRequest {
         let urlString = baseURL + path
