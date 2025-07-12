@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct ChatResponse: Decodable {
+public struct ChatResponse: Decodable {
 
-    let id: String
-    let error: ChatError?
-    let output: [ResponseMessage]?
+    public let id: String
+    public let error: ChatError?
+    public let output: [ResponseMessage]?
 
-    var message: String {
+    public var message: String {
         var content = ""
 
         output?.forEach {
@@ -38,25 +38,25 @@ struct ChatResponse: Decodable {
     }
 }
 
-struct ResponseMessage: Decodable {
-    let type: String
-    let status: String?
-    let content: [ResponseContent]?
-    let summary: [ResponseContent]?
+public struct ResponseMessage: Decodable {
+    public let type: String
+    public let status: String?
+    public let content: [ResponseContent]?
+    public let summary: [ResponseContent]?
 }
 
-struct ResponseContent: Decodable {
-    let type: String
-    let text: String?
+public struct ResponseContent: Decodable {
+    public let type: String
+    public let text: String?
 }
 
-struct ChatRequest: Codable {
-    let model: String
-    let input: [ChatMessage]
-    let previous_response_id: String?
-    let tools: [ChatTool]?
+public struct ChatRequest: Codable {
+    public let model: String
+    public let input: [ChatMessage]
+    public let previous_response_id: String?
+    public let tools: [ChatTool]?
 
-    init(model: String,
+    public init(model: String,
          input: [ChatMessage],
          previous_response_id: String? = nil,
          tools: [ChatTool]? = nil) {
@@ -68,72 +68,71 @@ struct ChatRequest: Codable {
 
 }
 
-struct ChatTool: Codable {
-    let type: String
+public struct ChatTool: Codable {
+    public let type: String
 }
 
-struct ChatMessage: Codable {
-    let role: String // "developer", "user", or "assistant"
-    let content: [ChatMessageContent]
+public struct ChatMessage: Codable {
+    public let role: String // "developer", "user", or "assistant"
+    public let content: [ChatMessageContent]
 
-    init(developer: String) {
+    public init(developer: String) {
         role = "developer"
         content = [ChatMessageContent(text: developer)]
     }
 
-    init(user message: String) {
+    public init(user message: String) {
         role = "user"
         self.content = [ChatMessageContent(text: message)]
     }
 
-    init(user content: [ChatMessageContent]) {
+    public init(user content: [ChatMessageContent]) {
         role = "user"
         self.content = content
     }
 }
 
-struct ChatMessageContent: Codable {
-    let type: String
-    var text: String?
-    var image_url: String?
+public struct ChatMessageContent: Codable {
+    public let type: String
+    public var text: String?
+    public var image_url: String?
 
-    init(image: PlatformImage) {
+    public init(image: PlatformImage) {
         type = "input_image"
         if let pngData = image.data {
             image_url = "data:image/png;base64,\(pngData.base64EncodedString())"
         }
     }
 
-    init(text: String) {
+    public init(text: String) {
         type = "input_text"
         self.text = text
         self.image_url = nil
     }
 }
 
-struct ModelResponse: Decodable {
-    let data: [ModelResponseItem]
-    let error: ChatError?
+public struct ModelResponse: Decodable {
+    public let data: [ModelResponseItem]
+    public let error: ChatError?
 }
 
-struct ModelResponseItem: Decodable {
-    let id: String
-    let created: Int
+public struct ModelResponseItem: Decodable {
+    public let id: String
+    public let created: Int
 }
 
-struct ChatError: Decodable {
-    let message: String
+public struct ChatError: Decodable {
+    public let message: String
 }
 
-
-struct ErrorResponse: Decodable {
-    let error: ChatError
+public struct ErrorResponse: Decodable {
+    public let error: ChatError
     
-    var apiError: GPTAPIError {
+    public var apiError: GPTAPIError {
         .error(error.message)
     }
 }
 
-enum GPTAPIError: Error {
+public enum GPTAPIError: Error {
     case error(String)
 }

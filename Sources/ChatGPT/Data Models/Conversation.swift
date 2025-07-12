@@ -16,10 +16,10 @@ import UIKit
 
 @Model
 public final class Conversation {
-    var date: Date
-    var messages: [Message]
+    public var date: Date
+    public var messages: [Message]
     
-    init() {
+    public init() {
         date = Date()
         messages = [Message]()
     }
@@ -28,22 +28,22 @@ public final class Conversation {
 
 @Model
 public final class Message {
-    var user: String
-    var gpt: String = ""
-    var responseId: String?
+    public var user: String
+    public var gpt: String = ""
+    public var responseId: String?
 
-    @Attribute(.externalStorage) var inputImageData: [Data]
-    @Attribute(.externalStorage) var outputImageData: [Data]
+    @Attribute(.externalStorage) public var inputImageData: [Data]
+    @Attribute(.externalStorage) public var outputImageData: [Data]
 
     
-    init(user: String, gpt: String, inputImageData: [Data], outputImageData: [Data]) {
+    public init(user: String, gpt: String, inputImageData: [Data], outputImageData: [Data]) {
         self.user = user
         self.gpt = gpt
         self.inputImageData = inputImageData
         self.outputImageData = outputImageData
     }
     
-    var inputImages: [PlatformImage] {
+    public var inputImages: [PlatformImage] {
         inputImageData.compactMap {
         #if os(macOS)
             NSImage(data: $0)
@@ -53,7 +53,7 @@ public final class Message {
         }
     }
     
-    var outputImages: [PlatformImage] {
+    public var outputImages: [PlatformImage] {
         outputImageData.compactMap {
         #if os(macOS)
             NSImage(data: $0)
@@ -63,7 +63,7 @@ public final class Message {
         }
     }
     
-    var isProbablyMarkdown: Bool {
+    public var isProbablyMarkdown: Bool {
         let markdownPatterns: [String] = [
             #"^#{1,6} .+"#,            // Headings like # H1, ## H2
             #"\*\*.+?\*\*"#,           // Bold **text**

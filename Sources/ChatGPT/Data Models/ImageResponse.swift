@@ -6,10 +6,10 @@
 //
 import SwiftUI
 
-struct ImageResponse: Decodable {
+public struct ImageResponse: Decodable {
     let data: [ImageResponseData]
     
-    var images: [PlatformImage] {
+    public var images: [PlatformImage] {
         data.compactMap { item -> PlatformImage? in
             guard let imageData = item.imageData else { return nil }
 
@@ -29,13 +29,13 @@ struct ImageResponseData: Decodable {
     }
 }
 
-enum ImageSize: String, CaseIterable, Identifiable {
+public enum ImageSize: String, CaseIterable, Identifiable {
     case square = "1024x1024"
     case landscape = "1536x1024"
     case portrait = "1024x1536"
     case auto = "auto"
 
-    var id: String { self.rawValue }
+    public var id: String { self.rawValue }
 
     var name: String {
         switch self {
@@ -47,19 +47,19 @@ enum ImageSize: String, CaseIterable, Identifiable {
     }
 }
 
-enum ImageQuality: String, CaseIterable, Identifiable {
+public enum ImageQuality: String, CaseIterable, Identifiable {
     case low = "low"
     case medium = "medium"
     case high = "high"
     case auto = "auto"
 
-    var id: String { self.rawValue }
+    public var id: String { self.rawValue }
 }
 
-enum ImageBackground: String, CaseIterable, Identifiable {
+public enum ImageBackground: String, CaseIterable, Identifiable {
     case transparent = "transparent"
     case opaque = "opaque"
     case auto = "auto"
 
-    var id: String { self.rawValue }
+    public var id: String { self.rawValue }
 }
