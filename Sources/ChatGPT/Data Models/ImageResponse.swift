@@ -37,7 +37,7 @@ public enum ImageSize: String, CaseIterable, Identifiable {
 
     public var id: String { self.rawValue }
 
-    var name: String {
+    public var name: String {
         switch self {
         case .square: return "Square"
         case .landscape: return "Landscape"
