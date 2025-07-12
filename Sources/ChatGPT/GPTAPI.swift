@@ -202,78 +202,29 @@ public class GPTAPI {
     
     //MARK: -
     @MainActor
-    public func chat(with conversation: Conversation, message: String, search: Bool, inputImages: [PlatformImage] = []) async throws {
-        
-        let previousResponseId = conversation.messages.last?.responseId
-        
-        do {
-            let response = try await createResponse(message: message,
-                                                    previousResponseId: previousResponseId,
-                                                    developer: developer,
-                                                    tools: search ? [ChatTool(type: "web_search_preview")] : nil,
-                                                    images: inputImages)
-            
-            let storedMessage = Message(user: message, gpt: response.message, inputImageData: inputImages.compactMap { $0.data }, outputImageData: [])
-            storedMessage.responseId = response.id
-            conversation.messages.append(storedMessage)
-        } catch let error as URLError  {
-            let nsError = error as NSError
-            if nsError.domain == NSURLErrorDomain {
-                if nsError.domain == NSURLErrorDomain {
-                    switch nsError.code {
-                    case NSURLErrorNetworkConnectionLost, NSURLErrorTimedOut, NSURLErrorCannotFindHost, NSURLErrorCannotConnectToHost, NSURLErrorNotConnectedToInternet:
-                        try? await Task.sleep(nanoseconds: 1_000_000_000)
-                        try await chat(with: conversation, message: message, search: search, inputImages: inputImages)
-                    default:
-                        break
-                    }
-                }
-            }
-        } catch {
-            throw error
-        }
+    public func chat(previousResponseId: String? = nil, message: String, search: Bool, inputImages: [PlatformImage] = []) async throws -> ChatResponse {
+        return try await createResponse(message: message,
+                                                previousResponseId: previousResponseId,
+                                                developer: developer,
+                                                tools: search ? [ChatTool(type: "web_search_preview")] : nil,
+                                                images: inputImages)
     }
     
     @MainActor
-    public func generateImage(with conversation: Conversation, message: String, inputImages: [PlatformImage] = []) async throws {
-        do {
-            let outputImages: [PlatformImage]
-            if !inputImages.isEmpty {
-                let response = try await editImage(prompt: message,
+    public func generateImage(message: String, inputImages: [PlatformImage] = []) async throws -> ImageResponse {
+        if !inputImages.isEmpty {
+            return try await editImage(prompt: message,
+                                               size: size,
+                                               quality: quality,
+                                               background: background,
+                                               number: number,
+                                               images: inputImages)
+        } else {
+            return try await generateImage(prompt: message,
                                                    size: size,
                                                    quality: quality,
                                                    background: background,
-                                                   number: number,
-                                                   images: inputImages)
-                outputImages = response.images
-            } else {
-                let response = try await generateImage(prompt: message,
-                                                       size: size,
-                                                       quality: quality,
-                                                       background: background,
-                                                       number: number)
-                outputImages = response.images
-            }
-
-            if !outputImages.isEmpty {
-                let storedMessage = Message(user: message, gpt: "Images:", inputImageData: inputImages.compactMap { $0.data }, outputImageData: outputImages.compactMap { $0.data })
-                conversation.messages.append(storedMessage)
-            }
-        } catch let error as URLError  {
-            let nsError = error as NSError
-            if nsError.domain == NSURLErrorDomain {
-                if nsError.domain == NSURLErrorDomain {
-                    switch nsError.code {
-                    case NSURLErrorNetworkConnectionLost, NSURLErrorTimedOut, NSURLErrorCannotFindHost, NSURLErrorCannotConnectToHost, NSURLErrorNotConnectedToInternet:
-                        try? await Task.sleep(nanoseconds: 1_000_000_000)
-                        try await generateImage(with: conversation, message: message, inputImages: inputImages)
-                    default:
-                        break
-                    }
-                }
-            }
-        } catch {
-            throw error
+                                                   number: number)
         }
     }
 }

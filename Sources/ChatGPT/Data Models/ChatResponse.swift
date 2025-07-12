@@ -65,7 +65,6 @@ public struct ChatRequest: Codable {
         self.tools = tools
         self.previous_response_id = previous_response_id
     }
-
 }
 
 public struct ChatTool: Codable {
