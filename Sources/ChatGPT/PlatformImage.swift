@@ -10,9 +10,9 @@ import PhotosUI
 
 #if os(macOS)
 import AppKit
-typealias PlatformImage = NSImage
+public typealias PlatformImage = NSImage
 
-extension PlatformImage {
+public extension PlatformImage {
     var data: Data? {
         guard let tiffRep = self.tiffRepresentation,
               let bitmap = NSBitmapImageRep(data: tiffRep),
@@ -48,9 +48,9 @@ extension PlatformImage {
 }
 #else
 import UIKit
-typealias PlatformImage = UIImage
+public typealias PlatformImage = UIImage
 
-extension PlatformImage {
+public extension PlatformImage {
     var data: Data? {
         return self.pngData()
     }

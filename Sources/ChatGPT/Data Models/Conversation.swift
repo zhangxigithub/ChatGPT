@@ -15,7 +15,7 @@ import UIKit
 #endif
 
 @Model
-final class Conversation {
+public final class Conversation {
     var date: Date
     var messages: [Message]
     
@@ -27,7 +27,7 @@ final class Conversation {
 
 
 @Model
-final class Message {
+public final class Message {
     var user: String
     var gpt: String = ""
     var responseId: String?

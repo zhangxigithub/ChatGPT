@@ -11,7 +11,7 @@ import SwiftUI
 private let baseURL = "https://api.openai.com/v1/"
 
 @MainActor
-class GPTAPI {
+public class GPTAPI {
     var apiKey = ""
     var model = ""
     var developer = ""
@@ -171,7 +171,7 @@ class GPTAPI {
     }
 
     // MARK: - Models
-    static func models(apiKey: String) async throws -> [String] {
+    public static func models(apiKey: String) async throws -> [String] {
         let url = URL(string: baseURL + "models")!
         var request = URLRequest(url: url)
         request.timeoutInterval = 30
@@ -187,7 +187,7 @@ class GPTAPI {
     
     //MARK: -
     @MainActor
-    func chat(with conversation: Conversation, message: String, search: Bool, inputImages: [PlatformImage] = []) async throws {
+    public func chat(with conversation: Conversation, message: String, search: Bool, inputImages: [PlatformImage] = []) async throws {
         
         let previousResponseId = conversation.messages.last?.responseId
         
@@ -220,7 +220,7 @@ class GPTAPI {
     }
     
     @MainActor
-    func generateImage(with conversation: Conversation, message: String, inputImages: [PlatformImage] = []) async throws {
+    public func generateImage(with conversation: Conversation, message: String, inputImages: [PlatformImage] = []) async throws {
         do {
             let outputImages: [PlatformImage]
             if !inputImages.isEmpty {
