@@ -15,7 +15,6 @@ public class GPTAPI {
     
     var apiKey = ""
     var model = ""
-    var developer = ""
     var size: ImageSize = .auto
     var quality: ImageQuality = .auto
     var background: ImageBackground = .auto
@@ -23,14 +22,12 @@ public class GPTAPI {
     
     public init(apiKey: String = "",
                 model: String = "",
-                developer: String = "",
                 size: ImageSize = .auto,
                 quality: ImageQuality = .auto,
                 background: ImageBackground = .auto,
                 number: Int = 1) {
         self.apiKey = apiKey
         self.model = model
-        self.developer = developer
         self.size = size
         self.quality = quality
         self.background = background
@@ -72,31 +69,6 @@ public class GPTAPI {
     }
 
     // MARK: - Chat /response
-    func createResponse(message: String,
-                        previousResponseId: String? = nil,
-                        developer: String? = nil,
-                        tools: [ChatTool]? = [],
-                        images: [PlatformImage] = []
-    ) async throws -> ChatResponse {
-        var request = urlRequest(path: "responses")
-
-        var input = [ChatMessage]()
-        if let developer {
-            input.append(ChatMessage(developer: developer))
-        }
-        if !images.isEmpty {
-            var content = [ChatMessageContent(text: message)]
-            content.append(contentsOf: images.map { ChatMessageContent(image: $0)})
-            input.append(ChatMessage(user: content))
-        } else {
-            input.append(ChatMessage(user: message))
-        }
-
-        let chatRequest = ChatRequest(model: model, input: input, previous_response_id: previousResponseId, tools: tools)
-        request.httpBody = try JSONEncoder().encode(chatRequest)
-
-        return try await Self.requestAndHandleAPIError(ChatResponse.self, from: request)
-    }
     
     func generateImage(prompt: String,
                        size: ImageSize = .auto,
@@ -201,16 +173,38 @@ public class GPTAPI {
     
     
     //MARK: -
-    @MainActor
-    public func chat(previousResponseId: String? = nil, message: String, search: Bool, inputImages: [PlatformImage] = []) async throws -> ChatResponse {
-        return try await createResponse(message: message,
-                                                previousResponseId: previousResponseId,
-                                                developer: developer,
-                                                tools: search ? [ChatTool(type: "web_search_preview")] : nil,
-                                                images: inputImages)
+    public func chat(previousResponseId: String? = nil,
+                     developer: String? = nil,
+                     message: String,
+                     search: Bool = false,
+                     inputImages: [PlatformImage] = [],
+                     responseFormat: ResponseFormat? = nil
+    ) async throws -> ChatResponse {
+        var request = urlRequest(path: "responses")
+
+        var input = [ChatMessage]()
+        if let developer {
+            input.append(ChatMessage(developer: developer))
+        }
+        if !inputImages.isEmpty {
+            var content = [ChatMessageContent(text: message)]
+            content.append(contentsOf: inputImages.map { ChatMessageContent(image: $0)})
+            input.append(ChatMessage(user: content))
+        } else {
+            input.append(ChatMessage(user: message))
+        }
+
+        let chatRequest = ChatRequest(model: model, input: input, previous_response_id: previousResponseId, tools: search ? [ChatTool(type: "web_search_preview")] : nil, format: responseFormat)
+        request.httpBody = try JSONEncoder().encode(chatRequest)
+
+        return try await Self.requestAndHandleAPIError(ChatResponse.self, from: request)
     }
     
-    @MainActor
+    public func dummy() async -> Int {
+        return 0
+    }
+
+    
     public func generateImage(message: String, inputImages: [PlatformImage] = []) async throws -> ImageResponse {
         if !inputImages.isEmpty {
             return try await editImage(prompt: message,

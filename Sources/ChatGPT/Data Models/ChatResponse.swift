@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ChatResponse: Decodable {
+public struct ChatResponse: Decodable, Sendable {
 
     public let id: String
     public let error: ChatError?
@@ -36,16 +36,17 @@ public struct ChatResponse: Decodable {
         }
         return content
     }
+
 }
 
-public struct ResponseMessage: Decodable {
+public struct ResponseMessage: Decodable, Sendable {
     public let type: String
     public let status: String?
     public let content: [ResponseContent]?
     public let summary: [ResponseContent]?
 }
 
-public struct ResponseContent: Decodable {
+public struct ResponseContent: Decodable, Sendable {
     public let type: String
     public let text: String?
 }
@@ -55,15 +56,23 @@ public struct ChatRequest: Codable {
     public let input: [ChatMessage]
     public let previous_response_id: String?
     public let tools: [ChatTool]?
+    public let text: [String: ResponseFormat]?
 
     public init(model: String,
          input: [ChatMessage],
          previous_response_id: String? = nil,
-         tools: [ChatTool]? = nil) {
+         tools: [ChatTool]? = nil,
+         format: ResponseFormat? = nil
+    ) {
         self.model = model
         self.input = input
         self.tools = tools
         self.previous_response_id = previous_response_id
+        if let format {
+            text = ["format": format]
+        } else {
+            text = nil
+        }
     }
 }
 
@@ -120,7 +129,7 @@ public struct ModelResponseItem: Decodable {
     public let created: Int
 }
 
-public struct ChatError: Decodable {
+public struct ChatError: Decodable, Sendable {
     public let message: String
 }
 
@@ -134,4 +143,59 @@ public struct ErrorResponse: Decodable {
 
 public enum GPTAPIError: Error {
     case error(String)
+}
+
+
+public class ResponseFormat: Codable {
+    let type = "json_schema"
+    let name: String
+    let strict = true
+    let schema: ResponseFormatItem
+    
+    public init(name: String, schema: ResponseFormatItem) {
+        self.name = name
+        self.schema = schema
+    }
+}
+
+public class ResponseFormatItem: Codable {
+    let type: ResponseFormatItemType
+    var properties: [String: ResponseFormatItem]? = nil
+    var items: ResponseFormatItem? = nil
+    var required: [String]? = nil
+    let additionalProperties: Bool
+    
+    public init(type: ResponseFormatItemType,
+                properties: [String: ResponseFormatItem]? = nil,
+                items: ResponseFormatItem? = nil,
+                required: [String]? = nil,
+                additionalProperties: Bool = false) {
+        self.type = type
+        self.properties = properties
+        self.required = required
+        self.additionalProperties = additionalProperties
+    }
+
+    public static var string: ResponseFormatItem {
+        ResponseFormatItem(type: .string)
+    }
+    
+    public init(array items: ResponseFormatItem) {
+        self.type = .array
+        self.items = items
+        self.additionalProperties = false
+    }
+    
+    public init(object properties: [String: ResponseFormatItem], required: [String]) {
+        self.type = .object
+        self.properties = properties
+        self.required = required
+        self.additionalProperties = false
+    }
+}
+
+public enum ResponseFormatItemType: String, Codable {
+    case object = "object"
+    case array = "array"
+    case string = "string"
 }
